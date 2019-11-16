@@ -9,7 +9,6 @@ const CONNECTION_URL = "mongodb+srv://Herta:PKC5ZLoLNcg2zEez@kangoonet-entqn.gcp
 const DATABASE_NAME = "KangooNet";
 var db;
 
-
 // Set default API response
 router.get('/', function (req, res) {
     res.json({
@@ -17,10 +16,11 @@ router.get('/', function (req, res) {
         message: 'Welcome to KangooNets world of APIs'
     });
 });
+
 router.get('/user', function (req, res) {
     MongoClient.connect(CONNECTION_URL, function (err, client) {
         db = client.db(DATABASE_NAME).collection("user").find({}).toArray((error, result) => {
-            if(error) throw error;
+            if (error) throw error;
 
             console.log(result);
             res.json(result);
@@ -29,13 +29,14 @@ router.get('/user', function (req, res) {
         });
     });
 });
+
 router.get('/user/:userId', function (req, res) {
     const id = req.params.userId;
     console.log(id);
     var objID = new ObjectId(id);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
-        db = client.db(DATABASE_NAME).collection("user").findOne({_id: objID}, function (err, result){
-            if(err) throw err;
+        db = client.db(DATABASE_NAME).collection("user").findOne({_id: objID}, function (err, result) {
+            if (err) throw err;
 
             console.log(result);
             res.json(result);
@@ -49,7 +50,7 @@ router.get('/user/add/:idToAdd/asFirendTo/:userId', function (req, res) {
     var objID = new ObjectId(req.params.userId);
     var objID2 = new ObjectId(req.params.idToAdd);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
-        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID},{ $push: {"user.contactList" : objID2}});
+        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID}, {$push: {"user.contactList": objID2}});
         client.close();
         res.send(objID2 + " added to " + objID)
     });
@@ -111,7 +112,7 @@ router.get('/matchJobs/:id1/:id2', function (req, res) {
                 var returnJson = [{}];
                 var match;
                 console.log(resultPerson1.user.jobList.length);
-                for(var y = 0; y < resultPerson1.user.jobList.length; y++) {
+                for (var y = 0; y < resultPerson1.user.jobList.length; y++) {
                     match = 0;
                     //match for Skill
                     for (var i = 0; i < resultPerson1.user.jobList[y].requirementsTags.length; i++) {
@@ -123,8 +124,11 @@ router.get('/matchJobs/:id1/:id2', function (req, res) {
                         }
                     }
                     match = (100 / resultPerson1.user.tagList.skillList.length) * match;
-                    console.log({ "jobName" : resultPerson1.user.jobList[y].name.toString(), "match" : match.toString() });
-                    returnJson[y] = { "jobName" : resultPerson1.user.jobList[y].name.toString(), "match" : match.toString() }
+                    console.log({"jobName": resultPerson1.user.jobList[y].name.toString(), "match": match.toString()});
+                    returnJson[y] = {
+                        "jobName": resultPerson1.user.jobList[y].name.toString(),
+                        "match": match.toString()
+                    }
                 }
 
                 res.json(returnJson);
@@ -139,12 +143,11 @@ router.get('/matchJobs/:id1/:id2', function (req, res) {
 router.get('/addJob/:idToAdd', function (req, res) {
     var objID = new ObjectId(req.params.userId);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
-        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID},{ $push: {"user.jobList" : req.body}});
+        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID}, {$push: {"user.jobList": req.body}});
         client.close();
         res.send(req.body);
     });
 });
-
 
 //first is dominant
 router.get('/match/:id1/:id2', function (req, res) {
@@ -162,10 +165,9 @@ router.get('/match/:id1/:id2', function (req, res) {
                 var skillMatch = 0;
                 var interestMatch = 0;
                 //match for skill
-                for(var i = 0; i < resultPerson1.user.tagList.skillList.length; i++ )
-                {
-                    for(var x = 0; x < resultPerson2.user.tagList.skillList.length; x++){
-                        if (resultPerson1.user.tagList.skillList[i] === resultPerson2.user.tagList.skillList[x]){
+                for (var i = 0; i < resultPerson1.user.tagList.skillList.length; i++) {
+                    for (var x = 0; x < resultPerson2.user.tagList.skillList.length; x++) {
+                        if (resultPerson1.user.tagList.skillList[i] === resultPerson2.user.tagList.skillList[x]) {
                             skillMatch++
                         }
                     }
@@ -174,10 +176,9 @@ router.get('/match/:id1/:id2', function (req, res) {
 
 
                 //match interest
-                for(var i = 0; i < resultPerson1.user.tagList.interestList.length; i++ )
-                {
-                    for(var x = 0; x < resultPerson2.user.tagList.interestList.length; x++){
-                        if (resultPerson1.user.tagList.interestList[i] === resultPerson2.user.tagList.interestList[x]){
+                for (var i = 0; i < resultPerson1.user.tagList.interestList.length; i++) {
+                    for (var x = 0; x < resultPerson2.user.tagList.interestList.length; x++) {
+                        if (resultPerson1.user.tagList.interestList[i] === resultPerson2.user.tagList.interestList[x]) {
                             interestMatch++
                         }
                     }
@@ -186,8 +187,8 @@ router.get('/match/:id1/:id2', function (req, res) {
 
 
                 res.json({
-                    "skillMatch" : skillMatch.toString(),
-                    "interestMatch" : interestMatch.toString()
+                    "skillMatch": skillMatch.toString(),
+                    "interestMatch": interestMatch.toString()
 
                 });
                 client.close();
@@ -197,5 +198,21 @@ router.get('/match/:id1/:id2', function (req, res) {
     });
 
 });
+
+router.post('/addTagsToUser', function (req, res) {
+    var myobj = req.body;
+
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        client.db(DATABASE_NAME).collection("user").insertOne(myobj, function (err, response) {
+            if (err) throw err;
+            console.log("1 document inserted");
+            res.json({status: "jo geht!"});
+            // db.close();
+        });
+    });
+
+
+});
+
 // Export API routes
 module.exports = router;
