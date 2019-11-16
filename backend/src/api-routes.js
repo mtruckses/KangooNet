@@ -44,6 +44,15 @@ router.get('/user/:userId', function (req, res) {
         });
     });
 });
+router.get('/user/add/:idToAdd/asFirendTo/:userId', function (req, res) {
+    var objID = new ObjectId(req.params.userId);
+    var objID2 = new ObjectId(req.params.idToAdd);
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID},{ $push: {"user.contactList" : objID2}});
+        client.close();
+        res.send(objID2 + " added to " + objID)
+    });
+});
 //get all conferences
 router.get('/conference', function (req, res) {
 
