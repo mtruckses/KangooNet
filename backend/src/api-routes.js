@@ -14,5 +14,12 @@ router.get('/user', function (req, res) {
         message: 'Welcome to KangooNets world of APIs'
     });
 });
+
+router.get('/conference', function (req, res) {
+    res.json({
+        status: 'API Its Working',
+        message: 'Welcome to KangooNets world of APIs'
+    });
+});
 // Export API routes
 module.exports = router;
