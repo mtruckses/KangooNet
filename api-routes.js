@@ -71,8 +71,7 @@ router.get('/conference', function (req, res) {
 //get one conference with ID
 router.get('/conference/:id', function (req, res) {
 
-    const id = parseInt(req.params.id, 10); // nur req.params.id
-//    var objID = new ObjectId("5dd011114ca4823874e9fefa")
+    const id = req.params.id;
     var objID = new ObjectId(id);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
         client.db(DATABASE_NAME).collection("conference").findOne({_id: objID}, function (err, result) {
@@ -199,20 +198,17 @@ router.get('/match/:id1/:id2', function (req, res) {
 
 });
 
-router.post('/addTagsToUser', function (req, res) {
+router.post('/addTagsToUser/:user', function (req, res) {
     var myobj = req.body;
+    let objID = new ObjectId(req.params.user);
 
+    const filter = "user.tagList."+req.body.type.toString();
+    console.log(filter);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
-        client.db(DATABASE_NAME).collection("user").insertOne(myobj, function (err, response) {
-            if (err) throw err;
-            console.log("1 document inserted");
-            res.json({status: "jo geht!"});
-            // db.close();
-        });
+        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID}, {$push: { [filter] : myobj.name}});
+        client.close();
+        res.send("joar")
     });
-
-
-});
-
+})
 // Export API routes
-module.exports = router;
+module.exports = router
