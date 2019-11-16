@@ -159,18 +159,20 @@ router.get('/match/:id1/:id2', function (req, res) {
         client.db(DATABASE_NAME).collection("user").findOne({_id: person1}, function (err, resultPerson1) {
             client.db(DATABASE_NAME).collection("user").findOne({_id: person2}, function (err, resultPerson2) {
 
-                var skillMatch = 0;
-                var interestMatch = 0;
+                var skillMatch = [];
+                var interestMatch = [];
                 //match for skill
+                console.log(resultPerson1.user.tagList.skillList);//test
                 for(var i = 0; i < resultPerson1.user.tagList.skillList.length; i++ )
                 {
+                    console.log(resultPerson2.user.tagList.skillList);
                     for(var x = 0; x < resultPerson2.user.tagList.skillList.length; x++){
                         if (resultPerson1.user.tagList.skillList[i] === resultPerson2.user.tagList.skillList[x]){
-                            skillMatch++
+                            console.log("hit");
+                            skillMatch[skillMatch.length] = resultPerson1.user.tagList.skillList[i];
                         }
                     }
                 }
-                skillMatch = (100 / resultPerson1.user.tagList.skillList.length) * skillMatch;
 
 
                 //match interest
@@ -178,17 +180,15 @@ router.get('/match/:id1/:id2', function (req, res) {
                 {
                     for(var x = 0; x < resultPerson2.user.tagList.interestList.length; x++){
                         if (resultPerson1.user.tagList.interestList[i] === resultPerson2.user.tagList.interestList[x]){
-                            interestMatch++
+                            interestMatch[interestMatch.length] = resultPerson1.user.tagList.interestList[i];
                         }
                     }
                 }
-                interestMatch = (100 / resultPerson1.user.tagList.interestList.length) * interestMatch;
 
 
                 res.json({
-                    "skillMatch" : skillMatch.toString(),
-                    "interestMatch" : interestMatch.toString()
-
+                    skillMatch,
+                    interestMatch
                 });
                 client.close();
             })
