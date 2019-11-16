@@ -40,8 +40,8 @@ router.get('/conference', function (req, res) {
 router.get('/conference/:id', function (req, res) {
 
     const id = parseInt(req.params.id, 10);
-    console.log("ID" + id);
-    var objID = new ObjectId("5dd011114ca4823874e9fefa")
+//    var objID = new ObjectId("5dd011114ca4823874e9fefa")
+    var objID = new ObjectId(id);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
         client.db(DATABASE_NAME).collection("conference").findOne({_id: objID}, function (err, result) {
             console.log(result);
@@ -49,6 +49,21 @@ router.get('/conference/:id', function (req, res) {
             client.close();
         })
     });
+});
+
+router.post('/createConference', function (req, res) {
+    var myobj = req.body;
+
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        client.db(DATABASE_NAME).collection("conference").insertOne(myobj, function (err, response) {
+            if (err) throw err;
+            console.log("1 document inserted");
+            res.json({status : "jo geht!"});
+           // db.close();
+        });
+    });
+
+
 });
 // Export API routes
 module.exports = router;
