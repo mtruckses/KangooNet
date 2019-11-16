@@ -2,16 +2,12 @@
 // Initialize express router
 let router = require('express').Router();
 // Import Mongo
-const  MongoClient = require("mongodb").MongoClient;
-const CONNECTION_URL ="mongodb+srv://Herta:PKC5ZLoLNcg2zEez@kangoonet-entqn.gcp.mongodb.net/test?retryWrites=true&w=majority";
+const MongoClient = require("mongodb").MongoClient;
+const CONNECTION_URL = "mongodb+srv://Herta:PKC5ZLoLNcg2zEez@kangoonet-entqn.gcp.mongodb.net/test?retryWrites=true&w=majority";
 const DATABASE_NAME = "KangooNet";
 var db;
 //connect mongoDB
-MongoClient.connect(CONNECTION_URL, function(err, client) {
-    console.log("Connected successfully to server");
-     db = client.db(DATABASE_NAME);
-    client.close();
-});
+
 
 // Set default API response
 router.get('/', function (req, res) {
@@ -28,11 +24,14 @@ router.get('/user', function (req, res) {
 });
 
 router.get('/conference', function (req, res) {
-
-    db.collection("conference").find({}, function (err, result) {
-        if(err) throw err;
-        res.send(result);
-    })
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        db = client.db(DATABASE_NAME).collection("conference").find({}, function (err, result) {
+            if (err) throw err;
+            console.log(result);
+            res.send("jo!");
+            client.close();
+        })
+    });
 });
 // Export API routes
 module.exports = router;
