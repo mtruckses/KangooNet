@@ -1,0 +1,116 @@
+const faker = require('faker');
+const fs = require('fs')
+
+let conference = [];
+
+function generateUsers() {
+
+    let users = []
+
+    for (let id=1; id <= 100; id++) {
+
+        let firstName = faker.name.firstName();
+        let lastName = faker.name.lastName();
+        let company = faker.company.companyName();
+        let avatar = faker.image.avatar();
+        let role = faker.random.arrayElement(["company","attendance"]);
+        let link = faker.internet.url();
+        let jobTitle = faker.name.jobTitle();
+        let skill = faker.random.arrayElement(["Cloud Computing",
+            "Artificial Intelligence",
+            "Analytical Reasoning",
+            "People Management",
+            "UX Design",
+            "Mobile Application Development",
+            "Sales Leadership",
+            "Translation",
+            "Audio Production",
+            "Natural Language Processing",
+            "Scientific Computing",
+            "Game Development",
+            "Social Media Marketing",
+            "Animation",
+            "Business Anal",
+            "Journalism",
+            "Digital Marketing",
+            "Competitive Strategies",
+            "Customer Service Systems",
+            "Software Testing",
+            "Data Science",
+            "Computer Graphics",
+            "Corporate Communications"]);
+        let interest = faker.random.arrayElement(["Animal fancy",
+            "Axe throwing",
+            "Badminton",
+            "Baton twirling",
+            "Beauty pageants",
+            "Billiards",
+            "Bowling",
+            "Boxing",
+            "Bridge",
+            "Cheerleading",
+            "Chess",
+            "Color guard",
+            "Curling",
+            "Dancing",
+            "Darts",
+            "Debate",
+            "Eating",
+            "Esports",
+            "Fencing",
+            "Go",
+            "Gymnastics",
+            "Ice hockey",
+            "Ice skating",
+            "Judo",
+            "Jujitsu",
+            "Kabaddi",
+            "Laser tag",
+            "Longboarding",
+            "Mahjong",
+            "Marbles",
+            "Martial arts",
+            "Poker",
+            "Shogi",
+            "Slot car racing",
+            "Speedcubing",
+            "Sport stacking",
+            "Table football",
+            "Table tennis",
+            "Volleyball",
+            "Weightlifting",
+            "Wrestling",]);
+        let location = faker.address.city();
+        let contactList = faker.random.objectElement(users);
+        let attendance = faker.random.objectElement(conference);
+        let upcomingConferenceList = faker.random.objectElement(conference);
+        let conferenceHistory = faker.random.objectElement(conference);
+
+
+        users.push({
+            "id": id,
+            "first_name": firstName,
+            "last_name": lastName,
+            "company": company,
+            "avatar": avatar,
+            "role": role,
+            "job": jobTitle,
+            "contactList": contactList,
+            "skill": skill,
+            "interest": interest,
+            "location": location,
+            "link": link,
+            "attendance": attendance,
+            "upcomingConferenceList": upcomingConferenceList,
+            "conferenceHistory": conferenceHistory,
+
+
+        });
+    }
+
+    return { "data": users }
+}
+
+let dataObj = generateUsers();
+
+fs.writeFileSync('data.json', JSON.stringify(dataObj, null, '\t'));
