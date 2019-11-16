@@ -44,6 +44,7 @@ router.get('/user/:userId', function (req, res) {
         });
     });
 });
+
 router.get('/user/add/:idToAdd/asFirendTo/:userId', function (req, res) {
     var objID = new ObjectId(req.params.userId);
     var objID2 = new ObjectId(req.params.idToAdd);
@@ -96,18 +97,99 @@ router.post('/createConference', function (req, res) {
 
 });
 
-router.get('/match/:id1/:id2', function (req, res) {
-    let person1 = parseInt(req.params.id1, 10);
-    let person2 = parseInt(req.params.id2, 10);
+router.get('/matchJobs/:id1/:id2', function (req, res) {
+
+    let person1 = req.params.id1;
+    let person2 = req.params.id2;
     person1 = new ObjectId(person1);
     person2 = new ObjectId(person2);
+
     MongoClient.connect(CONNECTION_URL, function (err, client) {
+
         client.db(DATABASE_NAME).collection("user").findOne({_id: person1}, function (err, resultPerson1) {
-            console.log(resultPerson1);
             client.db(DATABASE_NAME).collection("user").findOne({_id: person2}, function (err, resultPerson2) {
-               //thats where the matching happens
-             //   console.log(resultPerson1);
-                res.send("jo hier!");
+                var returnJson = [{}];
+                var match;
+                console.log(resultPerson1.user.jobList.length);
+                for(var y = 0; y < resultPerson1.user.jobList.length; y++) {
+                    match = 0;
+                    //match for Skill
+                    for (var i = 0; i < resultPerson1.user.jobList[y].requirementsTags.length; i++) {
+                        for (var x = 0; x < resultPerson2.user.tagList.skillList.length; x++) {
+                            if (resultPerson1.user.jobList[y].requirementsTags[i] === resultPerson2.user.tagList.skillList[x]) {
+                                match++;
+                                break;
+                            }
+                        }
+                    }
+                    match = (100 / resultPerson1.user.tagList.skillList.length) * match;
+                    console.log({ "jobName" : resultPerson1.user.jobList[y].name.toString(), "match" : match.toString() });
+                    returnJson[y] = { "jobName" : resultPerson1.user.jobList[y].name.toString(), "match" : match.toString() }
+                }
+
+                res.json(returnJson);
+                client.close();
+            })
+
+        })
+    });
+
+});
+
+router.get('/addJob/:idToAdd', function (req, res) {
+    var objID = new ObjectId(req.params.userId);
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID},{ $push: {"user.jobList" : req.body}});
+        client.close();
+        res.send(req.body);
+    });
+});
+
+
+//first is dominant
+router.get('/match/:id1/:id2', function (req, res) {
+
+    let person1 = req.params.id1;
+    let person2 = req.params.id2;
+    person1 = new ObjectId(person1);
+    person2 = new ObjectId(person2);
+
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+
+        client.db(DATABASE_NAME).collection("user").findOne({_id: person1}, function (err, resultPerson1) {
+            client.db(DATABASE_NAME).collection("user").findOne({_id: person2}, function (err, resultPerson2) {
+
+                var skillMatch = 0;
+                var interestMatch = 0;
+                //match for skill
+                for(var i = 0; i < resultPerson1.user.tagList.skillList.length; i++ )
+                {
+                    for(var x = 0; x < resultPerson2.user.tagList.skillList.length; x++){
+                        if (resultPerson1.user.tagList.skillList[i] === resultPerson2.user.tagList.skillList[x]){
+                            skillMatch++
+                        }
+                    }
+                }
+                skillMatch = (100 / resultPerson1.user.tagList.skillList.length) * skillMatch;
+
+
+                //match interest
+                for(var i = 0; i < resultPerson1.user.tagList.interestList.length; i++ )
+                {
+                    for(var x = 0; x < resultPerson2.user.tagList.interestList.length; x++){
+                        if (resultPerson1.user.tagList.interestList[i] === resultPerson2.user.tagList.interestList[x]){
+                            interestMatch++
+                        }
+                    }
+                }
+                interestMatch = (100 / resultPerson1.user.tagList.interestList.length) * interestMatch;
+
+
+                res.json({
+                    "skillMatch" : skillMatch.toString(),
+                    "interestMatch" : interestMatch.toString()
+
+                });
                 client.close();
             })
 
