@@ -1,0 +1,23 @@
+user:
+  id: string
+  role: 'company | candidate'
+  name: string
+  avatar: image
+  linkList: Link[]
+  jobList: Job[]
+  tagList: Tag[]
+  contactList: user[]
+  attendance: conference
+
+tag:
+  type: skill | interest | location
+
+job:
+  id: string
+  requirements: Tag
+  name: string
+
+conference:
+  id: string
+  name: string
+  expirationDate: date
