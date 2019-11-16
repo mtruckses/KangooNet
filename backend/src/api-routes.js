@@ -18,9 +18,30 @@ router.get('/', function (req, res) {
     });
 });
 router.get('/user', function (req, res) {
-    res.json({
-        status: 'API Its Working',
-        message: 'Welcome to KangooNets world of APIs'
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        db = client.db(DATABASE_NAME).collection("user").find({}).toArray((error, result) => {
+            if(error) throw error;
+
+            console.log(result);
+            res.json(result);
+
+            client.close();
+        });
+    });
+});
+router.get('/user/:userId', function (req, res) {
+    const id = req.params.userId;
+    console.log(id);
+    var objID = new ObjectId(id);
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        db = client.db(DATABASE_NAME).collection("user").findOne({_id: objID}, function (err, result){
+            if(err) throw err;
+
+            console.log(result);
+            res.json(result);
+
+            client.close();
+        });
     });
 });
 //get all conferences
