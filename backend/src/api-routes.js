@@ -39,7 +39,7 @@ router.get('/conference', function (req, res) {
 //get one conference with ID
 router.get('/conference/:id', function (req, res) {
 
-    const id = parseInt(req.params.id, 10);
+    const id = parseInt(req.params.id, 10); // nur req.params.id
 //    var objID = new ObjectId("5dd011114ca4823874e9fefa")
     var objID = new ObjectId(id);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
@@ -58,11 +58,31 @@ router.post('/createConference', function (req, res) {
         client.db(DATABASE_NAME).collection("conference").insertOne(myobj, function (err, response) {
             if (err) throw err;
             console.log("1 document inserted");
-            res.json({status : "jo geht!"});
-           // db.close();
+            res.json({status: "jo geht!"});
+            // db.close();
         });
     });
 
+
+});
+
+router.get('/match/:id1/:id2', function (req, res) {
+    let person1 = parseInt(req.params.id1, 10);
+    let person2 = parseInt(req.params.id2, 10);
+    person1 = new ObjectId(person1);
+    person2 = new ObjectId(person2);
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        client.db(DATABASE_NAME).collection("user").findOne({_id: person1}, function (err, resultPerson1) {
+            console.log(resultPerson1);
+            client.db(DATABASE_NAME).collection("user").findOne({_id: person2}, function (err, resultPerson2) {
+               //thats where the matching happens
+             //   console.log(resultPerson1);
+                res.send("jo hier!");
+                client.close();
+            })
+
+        })
+    });
 
 });
 // Export API routes
