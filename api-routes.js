@@ -352,7 +352,7 @@ router.get('/getAvatar', function (req, res) {
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQu7uFs9ddlwqTITqH1OaMpntNBMndOD5ipFRZqHlpImd1jR--t&s",
         "https://i.pinimg.com/564x/78/54/84/7854843699c1893928012a442386a129.jpg",
         "https://i.pinimg.com/564x/6e/f9/54/6ef95483656d96448c2c83fc65c645f5.jpg",
-        "http://i.imgur.com/187Y4u3.png
+        "http://i.imgur.com/187Y4u3.png"
     ];
     res.send(avatarArray);
 });
