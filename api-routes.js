@@ -2,7 +2,18 @@
 // Initialize express router
 let router = require('express').Router();
 let ObjectId = require('mongodb').ObjectId;
+var cors = require('cors')
 
+var whitelist = ['http://localhost:8100', 'https://adniluna.github.io/']
+var corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    }
+}
 // Import Mongo
 const MongoClient = require("mongodb").MongoClient;
 const CONNECTION_URL = "mongodb+srv://Herta:PKC5ZLoLNcg2zEez@kangoonet-entqn.gcp.mongodb.net/test?retryWrites=true&w=majority";
@@ -10,14 +21,14 @@ const DATABASE_NAME = "KangooNet";
 var db;
 
 // Set default API response
-router.get('/', function (req, res) {
+router.get('/', cors(corsOptions), function (req, res) {
     res.json({
         status: 'API Its Working',
         message: 'Welcome to KangooNets world of APIs'
     });
 });
 
-router.get('/user', function (req, res) {
+router.get('/user', cors(corsOptions), function (req, res) {
     MongoClient.connect(CONNECTION_URL, function (err, client) {
         db = client.db(DATABASE_NAME).collection("user").find({}).toArray((error, result) => {
             if (error) throw error;
@@ -29,7 +40,7 @@ router.get('/user', function (req, res) {
     });
 });
 //Get user by Id
-router.get('/user/:userId', function (req, res) {
+router.get('/user/:userId', cors(corsOptions), function (req, res) {
     const id = req.params.userId;
     var objID = new ObjectId(id);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
@@ -46,7 +57,7 @@ router.get('/user/:userId', function (req, res) {
     });
 });
 //get user by name
-router.get('/login/:name', function (req, res) {
+router.get('/login/:name', cors(corsOptions), function (req, res) {
 
     const name = req.params.userId;
 
@@ -68,7 +79,7 @@ router.get('/login/:name', function (req, res) {
     });
 });
 //post user to db
-router.post('/create', function (req, res) {
+router.post('/create', cors(corsOptions), function (req, res) {
 
     var exists = false;
 
@@ -134,25 +145,39 @@ router.post('/create', function (req, res) {
     });
 });
 //add user to contacts
-router.put('/user/add/:idToAdd/asFirendTo/:userId', function (req, res) {
+router.put('/user/add/:idToAdd/asFirendTo/:userId', cors(corsOptions), function (req, res) {
 
     var objID = new ObjectId(req.params.userId);
     var objID2 = new ObjectId(req.params.idToAdd);
+
 
     MongoClient.connect(CONNECTION_URL, function (err, client) {
         if (err) {
             res.send(409);
         }
 
-        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID}, {$push: {"user.contactList": objID2}});
-        client.close();
-        res.send(objID2 + " added to " + objID)
+        client.db(DATABASE_NAME).collection("user").findOne({_id: objID2}, function (err, result) {
+            if (err) {
+                res.send(409);
+            }
+
+            let newContactToAdd = {
+                _id: req.params.idToAdd,
+                name: result.user.name,
+                personalFeedback: "",
+                role: result.user.role,
+            }
+
+            db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID}, {$push: {"user.contactList": newContactToAdd}});
+            client.close();
+            res.send(objID2 + " added to " + objID)
+        })
 
 
     });
 });
 //get all conferences
-router.get('/conference', function (req, res) {
+router.get('/conference', cors(corsOptions), function (req, res) {
 
     MongoClient.connect(CONNECTION_URL, function (err, client) {
 
@@ -172,7 +197,7 @@ router.get('/conference', function (req, res) {
     });
 });
 //get one conference with ID
-router.get('/conference/:id', function (req, res) {
+router.get('/conference/:id', cors(corsOptions), function (req, res) {
 
     const id = req.params.id
     var objID = new ObjectId(id);
@@ -191,7 +216,7 @@ router.get('/conference/:id', function (req, res) {
 });
 
 //post Conference to db
-router.post('/createConference', function (req, res) {
+router.post('/createConference', cors(corsOptions), function (req, res) {
 
     var myobj = req.body;
 
@@ -207,7 +232,7 @@ router.post('/createConference', function (req, res) {
     });
 });
 //get matching % for job id1 dominant (companyID)
-router.get('/matchJobs/:id1/:id2', function (req, res) {
+router.get('/matchJobs/:id1/:id2', cors(corsOptions), function (req, res) {
 
     let person1 = req.params.id1;
     let person2 = req.params.id2;
@@ -240,7 +265,6 @@ router.get('/matchJobs/:id1/:id2', function (req, res) {
                             if (resultPerson1.user.jobList[y].requirementsTags[i] === resultPerson2.user.tagList.skillList[x]) {
 
 
-
                                 match++;
                                 break;
                             }
@@ -265,7 +289,7 @@ router.get('/matchJobs/:id1/:id2', function (req, res) {
 });
 
 
-router.put('/addJob/:idToAdd', function (req, res) {
+router.put('/addJob/:idToAdd', cors(corsOptions), function (req, res) {
 
     var objID = new ObjectId(req.params.idToAdd);
 
@@ -280,7 +304,7 @@ router.put('/addJob/:idToAdd', function (req, res) {
 });
 
 //first is dominant
-router.get('/match/:id1/:id2', function (req, res) {
+router.get('/match/:id1/:id2', cors(corsOptions), function (req, res) {
 
     let person1 = req.params.id1;
     let person2 = req.params.id2;
@@ -324,7 +348,7 @@ router.get('/match/:id1/:id2', function (req, res) {
 
 });
 //finished
-router.post('/addTagsToUser/:user', function (req, res) {
+router.post('/addTagsToUser/:user', cors(corsOptions), function (req, res) {
     var myobj = req.body;
     let objID = new ObjectId(req.params.user);
 
@@ -338,7 +362,7 @@ router.post('/addTagsToUser/:user', function (req, res) {
 })
 
 
-router.get('/getAvatar', function (req, res) {
+router.get('/getAvatar', cors(corsOptions), function (req, res) {
     let avatarArray = [
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4r0IbiG4zVd4vQK7_C_DX5H7fP7i20E6d5sKUla6WZqaW0auPmQ&s",
         "data:image/jpeg;base64,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",
@@ -370,7 +394,7 @@ router.post('/addTagsToConference/:conference', function (req, res) {
     });
 })
 
-router.post('/addJobs/:user', function (req, res) {
+router.post('/addJobs/:user', cors(corsOptions), function (req, res) {
     let name = req.body.name;
     //reqTags has to be Array
     let requirementsTag = req.body.requirementsTags;
@@ -388,7 +412,7 @@ router.post('/addJobs/:user', function (req, res) {
 })
 
 //WIP
-router.post('/addRequirementsToJob/:job', function (req, res) {
+router.post('/addRequirementsToJob/:job', cors(corsOptions), function (req, res) {
     var myobj = req.body;
     let objID = new ObjectId(req.params.job);
 
@@ -399,27 +423,25 @@ router.post('/addRequirementsToJob/:job', function (req, res) {
     });
 })
 //
-router.post('/personalFeedback/:ownID/:hisID', function (req, res) {
+router.post('/personalFeedback/:ownID/:hisID', cors(corsOptions), function (req, res) {
     let ownID = req.params.ownID;
     let hisID = req.params.hisID;
     let ownObjID = new ObjectId(ownID);
     let hisObjID = new ObjectId(hisID);
     let personalFeedback = req.body.personalFeedback;
 
+
     MongoClient.connect(CONNECTION_URL, function (err, client) {
         client.db(DATABASE_NAME).collection("user").findOne({_id: ownObjID}, function (err, oldObj) {
             for (let i = 0; i < oldObj.user.contactList.length; i++) {
 
-                if (oldObj.user.contactList[i].toString() ===  hisID.toString()) {
-                    let test = oldObj.user.contactList;
-                    let newObj = {
-                        name: oldObj.user.contactList[i],
-                        personalFeedback: personalFeedback
-                    }
-                    test[i] = newObj;
+                if (oldObj.user.contactList[i].toString() === hisID.toString()) {
 
-                    client.db(DATABASE_NAME).collection("user").updateOne({_id: ownObjID}, {$set: { "user.contactList" : test}}, function(err, result){
-                        if(err) throw err;
+                    let test = oldObj.user.contactList;
+                        test[i].personalFeedback = personalFeedback;
+
+                    client.db(DATABASE_NAME).collection("user").updateOne({_id: ownObjID}, {$set: {"user.contactList": test}}, function (err, result) {
+                        if (err) throw err;
                         res.send("entry changed");
                     });
                     break;
