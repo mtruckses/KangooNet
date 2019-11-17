@@ -79,7 +79,7 @@ router.get('/avatar', function (req, res) {
     })
 });
 //post user to db
-router.get('/create', function (req, res) {
+router.post('/create', function (req, res) {
 
     var exists = false;
 
@@ -145,7 +145,7 @@ router.get('/create', function (req, res) {
     });
 });
 //add user to contacts
-router.get('/user/add/:idToAdd/asFirendTo/:userId', function (req, res) {
+router.put('/user/add/:idToAdd/asFirendTo/:userId', function (req, res) {
 
     var objID = new ObjectId(req.params.userId);
     var objID2 = new ObjectId(req.params.idToAdd);
@@ -268,15 +268,14 @@ router.get('/matchJobs/:id1/:id2', function (req, res) {
 
 });
 
-router.get('/addJob/:idToAdd', function (req, res) {
+router.put('/addJob/:idToAdd', function (req, res) {
 
-    var objID = new ObjectId(req.params.userId);
+    var objID = new ObjectId(req.params.idToAdd);
 
     MongoClient.connect(CONNECTION_URL, function (err, client) {
         if (err) {
             res.send(409);
         }
-        
         db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID}, {$push: {"user.jobList": req.body}});
         client.close();
         res.send(req.body);
