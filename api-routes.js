@@ -162,7 +162,7 @@ router.put('/user/add/:idToAdd/asFirendTo/:userId', cors(corsOptions), function 
             }
 
             let newContactToAdd = {
-                _id: req.params.idToAdd,
+                id: req.params.idToAdd,
                 name: result.user.name,
                 personalFeedback: "",
                 role: result.user.role,
