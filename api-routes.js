@@ -175,8 +175,7 @@ router.get('/conference', function (req, res) {
 //get one conference with ID
 router.get('/conference/:id', function (req, res) {
 
-    const id = parseInt(req.params.id, 10); // nur req.params.id
-//    var objID = new ObjectId("5dd011114ca4823874e9fefa")
+    const id = req.params.id
     var objID = new ObjectId(id);
     MongoClient.connect(CONNECTION_URL, function (err, client) {
         if (err) {
