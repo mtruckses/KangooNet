@@ -8,7 +8,9 @@ const swaggerUi = require("swagger-ui-express");
 swaggerDocument = require('./swagger.json');
 
 // Initialize the app
+var cors = require('cors')
 const app = express();
+app.use(cors())
 
 
 
