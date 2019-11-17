@@ -9,7 +9,6 @@ const CONNECTION_URL = "mongodb+srv://Herta:PKC5ZLoLNcg2zEez@kangoonet-entqn.gcp
 const DATABASE_NAME = "KangooNet";
 var db;
 
-
 // Set default API response
 router.get('/', function (req, res) {
     res.json({
@@ -156,7 +155,7 @@ router.put('/user/add/:idToAdd/asFirendTo/:userId', function (req, res) {
 router.get('/conference', function (req, res) {
 
     MongoClient.connect(CONNECTION_URL, function (err, client) {
-      
+
         if (err) {
             res.send(409);
         }
@@ -280,8 +279,6 @@ router.put('/addJob/:idToAdd', function (req, res) {
     });
 });
 
-
-
 //first is dominant
 router.get('/match/:id1/:id2', function (req, res) {
 
@@ -298,7 +295,6 @@ router.get('/match/:id1/:id2', function (req, res) {
                 var skillMatch = [];
                 var interestMatch = [];
                 //match for skill
-
 
                 for (var i = 0; i < resultPerson1.user.tagList.skillList.length; i++) {
                     for (var x = 0; x < resultPerson2.user.tagList.skillList.length; x++) {
@@ -385,7 +381,7 @@ router.post('/addJobs/:user', function (req, res) {
     let objID = new ObjectId(req.params.user);
 
     MongoClient.connect(CONNECTION_URL, function (err, client) {
-        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID}, {$push: { "user.jobList" : myobj}});
+        db = client.db(DATABASE_NAME).collection("user").updateOne({_id: objID}, {$push: {"user.jobList": myobj}});
         client.close();
         res.send("Job added to JobList")
     });
@@ -402,7 +398,39 @@ router.post('/addRequirementsToJob/:job', function (req, res) {
         res.send("joar")
     });
 })
+//
+router.post('/personalFeedback/:ownID/:hisID', function (req, res) {
+    let ownID = req.params.ownID;
+    let hisID = req.params.hisID;
+    let ownObjID = new ObjectId(ownID);
+    let hisObjID = new ObjectId(hisID);
+    let personalFeedback = req.body.personalFeedback;
 
+    MongoClient.connect(CONNECTION_URL, function (err, client) {
+        client.db(DATABASE_NAME).collection("user").findOne({_id: ownObjID}, function (err, oldObj) {
+            for (let i = 0; i < oldObj.user.contactList.length; i++) {
+
+                if (oldObj.user.contactList[i].toString() ===  hisID.toString()) {
+                    let test = oldObj.user.contactList;
+                    let newObj = {
+                        name: oldObj.user.contactList[i],
+                        personalFeedback: personalFeedback
+                    }
+                    test[i] = newObj;
+
+                    client.db(DATABASE_NAME).collection("user").updateOne({_id: ownObjID}, {$set: { "user.contactList" : test}}, function(err, result){
+                        if(err) throw err;
+                        res.send("entry changed");
+                    });
+                    break;
+
+                }
+            }
+            res.end("doesn't work");
+            client.close();
+        })
+    });
+})
 
 
 // Export API routes
